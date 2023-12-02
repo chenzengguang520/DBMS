@@ -22,6 +22,7 @@ private:
 public:
 	create();
 	~create();
+
 	 
 	void setWhere(std::map<std::pair<std::string, std::string>, int>&);
 
