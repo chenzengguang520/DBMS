@@ -1,0 +1,1 @@
+./dbms/student/score.txt 2
