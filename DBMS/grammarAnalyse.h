@@ -183,6 +183,7 @@ void Analyse::createTableData()
 		std::cout << "SQL Error need ()!" << std::endl;
 		return;
 	}
-
+	//需要写一个新的stringSplit按，拆分。获取括号内的内容
+	//create table score (id int,score int)
 
 }
