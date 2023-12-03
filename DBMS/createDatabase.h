@@ -23,6 +23,12 @@ public:
 	create();
 	~create();
 
+	std::vector<std::string> selectData(std::string, std::vector<std::string>&);//select column1,from table;
+
+	std::vector<std::string> getWhereData(std::vector<std::string>& v);
+
+	//update set
+	void updateData(std::string, std::map<std::string, std::string>& m);
 	 
 	void setWhere(std::map<std::pair<std::string, std::string>, int>&);
 
@@ -51,6 +57,7 @@ public:
 	void writeFile(std::string filePath, std::vector<std::pair<std::string, std::string>> v,int count);
 
 	void writeFile(std::string, std::list<std::string>& l);
+	void writeFile(std::string, std::vector<std::string>& v);
 
 	
 };
@@ -196,6 +203,30 @@ inline void create::writeFile(std::string filePath, std::list<std::string>& l)
 	{
 		std::cerr << "无法打开文件：" << filePath << std::endl;
 	}
+}
+
+inline void create::writeFile(std::string filePath, std::vector<std::string>& l)
+{
+
+	std::ofstream outputFile(filePath);
+
+	// 检查文件是否成功打开
+	if (outputFile.is_open()) {
+		for (const auto& cur : l)
+		{
+			outputFile << cur << "\n";
+		}
+
+		// 关闭文件流
+		outputFile.close();
+
+		std::cout << "内容已成功写入到文件：" << filePath << std::endl;
+	}
+	else
+	{
+		std::cerr << "无法打开文件：" << filePath << std::endl;
+	}
+
 }
 
 
@@ -364,6 +395,180 @@ inline create::~create()
 	std::string filePath = "./file/variableCount.txt";
 	writeFile(filePath, variableCount);
 
+}
+
+inline std::vector<std::string> create::selectData(std::string name, std::vector<std::string>& variableName)
+{
+	std::string path1 = "./data/" + name + ".txt";
+
+	std::vector<std::string> v;
+
+	// 打开文件流
+	std::ifstream inputFile(path1);
+
+	// 检查文件是否成功打开
+	if (inputFile.is_open())
+	{
+		// 逐行读取文件内容
+		std::string line;
+		tableVariable.clear();
+		while (std::getline(inputFile, line))
+		{
+			std::cout << line << std::endl;
+			v.push_back(line);
+		}
+		//std::cout << "******************" << std::endl;
+		inputFile.close();
+	}
+	else
+	{
+		std::cerr << "无法打开文件：" << path1 << std::endl;
+	}
+
+	std::vector<std::string> need = getWhereData(v);
+	std::vector<std::string>needData;
+	for (const auto& cur : need)
+	{
+		std::vector<std::string> words1 = stringSplit(cur);
+		for (const auto& data : v)
+		{
+			std::vector<std::string>words2 = stringSplit(data);
+			if (words1[2] == words2[2])
+			{
+				for (const auto& variablename : variableName)
+				{
+					if (words2[0] == variablename)
+					{
+						needData.push_back(data);
+					}
+				}
+			}
+		}
+	}
+	return needData;
+}
+
+inline std::vector<std::string> create::getWhereData(std::vector<std::string>& v)
+{
+
+	std::vector<std::string>deleteList;
+	for (const auto& data : v)
+	{
+		//word[0] 应该是数据名，word[1] 应该是数据值, word[2]应该是第几个数据
+		std::vector<std::string>word = stringSplit(data);
+		int count = 0;
+		int destion = whereMap.size();
+		for (const auto& cur : whereMap)
+		{
+			std::string variableName = cur.first.first;
+			std::string variableValue = cur.first.second;
+			int condition = cur.second;// 0: == , 1 : > , 2 < , 3 <= , 4 >= , 5 !=
+			if (word[0] == variableName)
+			{
+				switch (condition)
+				{
+				case 0:
+					if (word[1] == variableValue)
+					{
+						count++;
+					}
+					break;
+				case 1:
+					if (word[1] > variableValue)
+					{
+						count++;
+					}
+					break;
+				case 2:
+					if (word[1] < variableValue)
+					{
+						count++;
+					}
+					break;
+				case 3:
+					if (word[1] <= variableValue)
+					{
+						count++;
+					}
+					break;
+				case 4:
+					if (word[1] >= variableValue)
+					{
+						count++;
+					}
+					break;
+				case 5:
+					if (word[1] != variableValue)
+					{
+						count++;
+					}
+					break;
+				default:
+					break;
+				}
+			}
+		}
+		if (count == destion)
+			deleteList.push_back(data);
+	}
+
+	if (deleteList.empty())
+		return v;
+
+	return deleteList;
+}
+
+inline void create::updateData(std::string name, std::map<std::string, std::string>& m)
+{
+	std::string path1 = "./data/" + name + ".txt";
+
+	std::vector<std::string> v;
+
+	// 打开文件流
+	std::ifstream inputFile(path1);
+
+	// 检查文件是否成功打开
+	if (inputFile.is_open())
+	{
+		// 逐行读取文件内容
+		std::string line;
+		tableVariable.clear();
+		while (std::getline(inputFile, line))
+		{
+			std::cout << line << std::endl;
+			v.push_back(line);
+		}
+		//std::cout << "******************" << std::endl;
+		inputFile.close();
+	}
+	else
+	{
+		std::cerr << "无法打开文件：" << path1 << std::endl;
+	}
+
+	std::vector<std::string> needUpdate = getWhereData(v);
+
+	std::cout << "needUpdate.size() = " << needUpdate.size() << std::endl;
+
+	std::vector<std::string> allNeedUpdate;
+
+	for (const auto& cur : needUpdate)
+	{
+		std::vector<std::string> words1 = stringSplit(cur);
+		for (auto& data : v)
+		{
+			std::vector<std::string> words2 = stringSplit(data);
+			if (words2[2] == words1[2])
+			{
+				if (m.find(words2[0]) != m.end())
+				{
+					words2[1] = m[words2[0]];
+					data = words2[0] + " " + words2[1] + " " + words2[2];
+				}
+			}
+		}
+	}
+	writeFile(path1, v);
 }
 
 inline void create::setWhere(std::map<std::pair<std::string, std::string>, int>& m)
