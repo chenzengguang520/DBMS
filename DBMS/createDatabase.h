@@ -17,11 +17,12 @@ private:
 	std::map<std::string, std::string> variableCount;
 
 private:
-	std::vector<std::string> stringSplit(std::string str);
 	void printVector(std::vector<std::string>& v);
+	std::vector<std::string> stringSplit(std::string str);
 public:
 	create();
 	~create();
+	friend std::vector<std::string> stringSplitPlus(create& e,std::string str);
 
 	std::vector<std::string> selectData(std::string, std::vector<std::string>&);//select column1,from table;
 
@@ -756,4 +757,10 @@ inline void create::showData(std::string name)
 		std::cout << "\n";
 	}
 
+}
+
+
+std::vector<std::string> stringSplitPlus(create& e,std::string str)
+{
+	return e.stringSplit(str);
 }

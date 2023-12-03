@@ -1,1 +1,1 @@
-./dbms/student/score.txt 13
+./dbms/student/score.txt 14

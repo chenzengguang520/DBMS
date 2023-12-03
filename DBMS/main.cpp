@@ -1,5 +1,5 @@
 ﻿#include<iostream>
-#include "createDatabase.h"
+#include "grammarAnalyse.h"
 using namespace std;
 
 void test()
@@ -15,10 +15,10 @@ void test()
 	data["score"] = "92";
 	c->insert("score", data);
 	c->showData("score");
-// 	map<pair<string, string>, int>m1;
-// 	m1.insert({ pair("age","5"),0});
-// 	c->setWhere(m1);
-// 	c->deleteData("score");
+	map<pair<string, string>, int>m1;
+	m1.insert({ pair("age","5"),0});
+	c->setWhere(m1);
+	c->deleteData("score");
 
 	map<pair<string, string>, int>m2;
 	m2.insert({ pair("age","9"),0 });
@@ -43,7 +43,19 @@ void test()
 }
 
 
+void analyseTest()
+{
+	Analyse* analyser = new Analyse();
+	while (1)
+	{
+		cout << "cyw DBMS SQL>> ";
+		string code;
+		getline(std::cin, code);
+		analyser->grammarAnalyse(code);
+	}
+}
+
 int main()
 {
-	test();
+	analyseTest();
 }
