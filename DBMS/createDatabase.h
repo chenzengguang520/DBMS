@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include <iostream>
 #include <fstream>
 #include <filesystem>
@@ -64,11 +64,11 @@ public:
 
 bool create::createDatabase(std::string name)
 {
-	// Æ´½Óµ±Ç°Â·¾¶ºÍÎÄ¼ş¼ĞÃû
+	// æ‹¼æ¥å½“å‰è·¯å¾„å’Œæ–‡ä»¶å¤¹å
 	name = "./dbms/" + name;
 	fs::path folderPath = fs::current_path() / name;
 
-	// ¼ì²éÎÄ¼ş¼ĞÊÇ·ñ´æÔÚ
+	// æ£€æŸ¥æ–‡ä»¶å¤¹æ˜¯å¦å­˜åœ¨
 	if (fs::exists(folderPath) && fs::is_directory(folderPath))
 	{
 		std::cout << "Error: Folder '" << name << "' already exists." << std::endl;
@@ -76,7 +76,7 @@ bool create::createDatabase(std::string name)
 	}
 	else
 	{
-		// ´´½¨ÎÄ¼ş¼Ğ
+		// åˆ›å»ºæ–‡ä»¶å¤¹
 		if (fs::create_directory(folderPath))
 		{
 			std::cout << "Folder '" << name << "' created successfully." << std::endl;
@@ -93,20 +93,20 @@ bool create::createDatabase(std::string name)
 inline bool create::createTable(std::string name,std::map<std::string,std::string>m)
 {
 
-	// Æ´½ÓÎÄ¼şÂ·¾¶
+	// æ‹¼æ¥æ–‡ä»¶è·¯å¾„
 	std::string filePath =  dataBasePath + name + ".txt";
 
-	// ³¢ÊÔ´ò¿ªÎÄ¼ş
+	// å°è¯•æ‰“å¼€æ–‡ä»¶
 	std::ifstream file(filePath);
 
-	// Èç¹ûÎÄ¼şÒÑ´æÔÚ£¬·µ»Ø false
+	// å¦‚æœæ–‡ä»¶å·²å­˜åœ¨ï¼Œè¿”å› false
 	if (file.is_open()) {
 		std::cout << "Error: Folder '" << name << "' already exists." << std::endl;
 		file.close();
 		return false;
 	}
 
-	// ÎÄ¼ş²»´æÔÚ£¬´´½¨ÎÄ¼ş²¢·µ»Ø true
+	// æ–‡ä»¶ä¸å­˜åœ¨ï¼Œåˆ›å»ºæ–‡ä»¶å¹¶è¿”å› true
 	std::ofstream newFile(filePath);
 	newFile.close();
 
@@ -139,25 +139,25 @@ inline std::vector<std::string> create::getTable()
 
 inline void create::writeFile(std::string filePath,std::map<std::string, std::string> m)
 {
-	//std::string filePath = dataBasePath + name + ".txt"; // Ìæ»»ÎªÄãÏ£ÍûĞ´ÈëÄÚÈİµÄÎÄ¼şÂ·¾¶
+	//std::string filePath = dataBasePath + name + ".txt"; // æ›¿æ¢ä¸ºä½ å¸Œæœ›å†™å…¥å†…å®¹çš„æ–‡ä»¶è·¯å¾„
 //	std::cout << filePath << std::endl;
-	// ´ò¿ªÎÄ¼şÁ÷
+	// æ‰“å¼€æ–‡ä»¶æµ
 	std::ofstream outputFile(filePath);
 
-	// ¼ì²éÎÄ¼şÊÇ·ñ³É¹¦´ò¿ª
+	// æ£€æŸ¥æ–‡ä»¶æ˜¯å¦æˆåŠŸæ‰“å¼€
 	if (outputFile.is_open()) {
 		for (const auto& cur : m)
 		{
 			outputFile << cur.first << " " << cur.second << "\n";
 		}
 
-		// ¹Ø±ÕÎÄ¼şÁ÷
+		// å…³é—­æ–‡ä»¶æµ
 		outputFile.close();
 
-		std::cout << "ÄÚÈİÒÑ³É¹¦Ğ´Èëµ½ÎÄ¼ş£º" << filePath << std::endl;
+		std::cout << "å†…å®¹å·²æˆåŠŸå†™å…¥åˆ°æ–‡ä»¶ï¼š" << filePath << std::endl;
 	}
 	else {
-		std::cerr << "ÎŞ·¨´ò¿ªÎÄ¼ş£º" << filePath << std::endl;
+		std::cerr << "æ— æ³•æ‰“å¼€æ–‡ä»¶ï¼š" << filePath << std::endl;
 	}
 }
 
@@ -165,20 +165,20 @@ inline void create::writeFile(std::string filePath, std::vector<std::pair<std::s
 {
 	std::ofstream outputFile(filePath, std::ios::app);
 
-	// ¼ì²éÎÄ¼şÊÇ·ñ³É¹¦´ò¿ª
+	// æ£€æŸ¥æ–‡ä»¶æ˜¯å¦æˆåŠŸæ‰“å¼€
 	if (outputFile.is_open()) {
 		for (const auto& cur : v)
 		{
 			outputFile << cur.first << " " << cur.second <<" " << count << "\n";
 		}
 
-		// ¹Ø±ÕÎÄ¼şÁ÷
+		// å…³é—­æ–‡ä»¶æµ
 		outputFile.close();
 
-		std::cout << "ÄÚÈİÒÑ³É¹¦Ğ´Èëµ½ÎÄ¼ş£º" << filePath << std::endl;
+		std::cout << "å†…å®¹å·²æˆåŠŸå†™å…¥åˆ°æ–‡ä»¶ï¼š" << filePath << std::endl;
 	}
 	else {
-		std::cerr << "ÎŞ·¨´ò¿ªÎÄ¼ş£º" << filePath << std::endl;
+		std::cerr << "æ— æ³•æ‰“å¼€æ–‡ä»¶ï¼š" << filePath << std::endl;
 	}
 
 }
@@ -187,21 +187,21 @@ inline void create::writeFile(std::string filePath, std::list<std::string>& l)
 {
 	std::ofstream outputFile(filePath);
 
-	// ¼ì²éÎÄ¼şÊÇ·ñ³É¹¦´ò¿ª
+	// æ£€æŸ¥æ–‡ä»¶æ˜¯å¦æˆåŠŸæ‰“å¼€
 	if (outputFile.is_open()) {
 		for (const auto& cur : l)
 		{
 			outputFile << cur << "\n";
 		}
 
-		// ¹Ø±ÕÎÄ¼şÁ÷
+		// å…³é—­æ–‡ä»¶æµ
 		outputFile.close();
 
-		std::cout << "ÄÚÈİÒÑ³É¹¦Ğ´Èëµ½ÎÄ¼ş£º" << filePath << std::endl;
+		std::cout << "å†…å®¹å·²æˆåŠŸå†™å…¥åˆ°æ–‡ä»¶ï¼š" << filePath << std::endl;
 	}
 	else 
 	{
-		std::cerr << "ÎŞ·¨´ò¿ªÎÄ¼ş£º" << filePath << std::endl;
+		std::cerr << "æ— æ³•æ‰“å¼€æ–‡ä»¶ï¼š" << filePath << std::endl;
 	}
 }
 
@@ -210,21 +210,21 @@ inline void create::writeFile(std::string filePath, std::vector<std::string>& l)
 
 	std::ofstream outputFile(filePath);
 
-	// ¼ì²éÎÄ¼şÊÇ·ñ³É¹¦´ò¿ª
+	// æ£€æŸ¥æ–‡ä»¶æ˜¯å¦æˆåŠŸæ‰“å¼€
 	if (outputFile.is_open()) {
 		for (const auto& cur : l)
 		{
 			outputFile << cur << "\n";
 		}
 
-		// ¹Ø±ÕÎÄ¼şÁ÷
+		// å…³é—­æ–‡ä»¶æµ
 		outputFile.close();
 
-		std::cout << "ÄÚÈİÒÑ³É¹¦Ğ´Èëµ½ÎÄ¼ş£º" << filePath << std::endl;
+		std::cout << "å†…å®¹å·²æˆåŠŸå†™å…¥åˆ°æ–‡ä»¶ï¼š" << filePath << std::endl;
 	}
 	else
 	{
-		std::cerr << "ÎŞ·¨´ò¿ªÎÄ¼ş£º" << filePath << std::endl;
+		std::cerr << "æ— æ³•æ‰“å¼€æ–‡ä»¶ï¼š" << filePath << std::endl;
 	}
 
 }
@@ -253,15 +253,15 @@ inline std::vector<std::string> create::stringSplit(std::string str)
 inline create::create()
 {
 
-	std::string filePath = "./file/variable.txt"; // Ìæ»»ÎªÄãÏ£Íû¶ÁÈ¡ÄÚÈİµÄÎÄ¼şÂ·¾¶
+	std::string filePath = "./file/variable.txt"; // æ›¿æ¢ä¸ºä½ å¸Œæœ›è¯»å–å†…å®¹çš„æ–‡ä»¶è·¯å¾„
 
-	// ´ò¿ªÎÄ¼şÁ÷
+	// æ‰“å¼€æ–‡ä»¶æµ
 	std::ifstream inputFile(filePath);
 
-	// ¼ì²éÎÄ¼şÊÇ·ñ³É¹¦´ò¿ª
+	// æ£€æŸ¥æ–‡ä»¶æ˜¯å¦æˆåŠŸæ‰“å¼€
 	if (inputFile.is_open()) 
 	{
-		// ÖğĞĞ¶ÁÈ¡ÎÄ¼şÄÚÈİ
+		// é€è¡Œè¯»å–æ–‡ä»¶å†…å®¹
 		std::string line;
 		int l = 0;
 		while (std::getline(inputFile, line)) 
@@ -270,26 +270,26 @@ inline create::create()
 			//std::cout << line << " " << l << std::endl;
 		}
 
-		// ¹Ø±ÕÎÄ¼şÁ÷
+		// å…³é—­æ–‡ä»¶æµ
 		inputFile.close();
 	}
 	else 
 	{
-		std::cerr << "ÎŞ·¨´ò¿ªÎÄ¼ş£º" << filePath << std::endl;
+		std::cerr << "æ— æ³•æ‰“å¼€æ–‡ä»¶ï¼š" << filePath << std::endl;
 	}
 
 
 
 	//get variableCount
-	filePath = "./file/variableCount.txt"; // Ìæ»»ÎªÄãÏ£Íû¶ÁÈ¡ÄÚÈİµÄÎÄ¼şÂ·¾¶
+	filePath = "./file/variableCount.txt"; // æ›¿æ¢ä¸ºä½ å¸Œæœ›è¯»å–å†…å®¹çš„æ–‡ä»¶è·¯å¾„
 
-	// ´ò¿ªÎÄ¼şÁ÷
+	// æ‰“å¼€æ–‡ä»¶æµ
 	std::ifstream inputFile1(filePath);
 
-	// ¼ì²éÎÄ¼şÊÇ·ñ³É¹¦´ò¿ª
+	// æ£€æŸ¥æ–‡ä»¶æ˜¯å¦æˆåŠŸæ‰“å¼€
 	if (inputFile1.is_open())
 	{
-		// ÖğĞĞ¶ÁÈ¡ÎÄ¼şÄÚÈİ
+		// é€è¡Œè¯»å–æ–‡ä»¶å†…å®¹
 		std::string line;
 		while (std::getline(inputFile1, line))
 		{
@@ -298,12 +298,12 @@ inline create::create()
 			//std::cout << v[0] << " " << v[1] << std::endl;
 			variableCount.insert({ v[0],v[1]});
 		}
-		// ¹Ø±ÕÎÄ¼şÁ÷
+		// å…³é—­æ–‡ä»¶æµ
 		inputFile1.close();
 	}
 	else
 	{
-		std::cerr << "ÎŞ·¨´ò¿ªÎÄ¼ş£º" << filePath << std::endl;
+		std::cerr << "æ— æ³•æ‰“å¼€æ–‡ä»¶ï¼š" << filePath << std::endl;
 	}
 
 
@@ -316,13 +316,13 @@ inline void create::insert(std::string name, std::map<std::string, std::string> 
 	std::string path1 = dataBasePath + name + ".txt";
 
 
-	// ´ò¿ªÎÄ¼şÁ÷
+	// æ‰“å¼€æ–‡ä»¶æµ
 	std::ifstream inputFile(path1);
 
-	// ¼ì²éÎÄ¼şÊÇ·ñ³É¹¦´ò¿ª
+	// æ£€æŸ¥æ–‡ä»¶æ˜¯å¦æˆåŠŸæ‰“å¼€
 	if (inputFile.is_open()) 
 	{
-		// ÖğĞĞ¶ÁÈ¡ÎÄ¼şÄÚÈİ
+		// é€è¡Œè¯»å–æ–‡ä»¶å†…å®¹
 		std::string line;
 		tableVariable.clear();
 		while (std::getline(inputFile, line)) 
@@ -331,7 +331,7 @@ inline void create::insert(std::string name, std::map<std::string, std::string> 
 			std::vector<std::string> words = stringSplit(line);
 			tableVariable[words[0]] = words[1];
 		}
-		// ¹Ø±ÕÎÄ¼şÁ÷
+		// å…³é—­æ–‡ä»¶æµ
 		int count = std::stoi(variableCount[path1]);
 		count++;
 		variableCount[path1] = std::to_string(count);
@@ -339,7 +339,7 @@ inline void create::insert(std::string name, std::map<std::string, std::string> 
 	}
 	else 
 	{
-		std::cerr << "ÎŞ·¨´ò¿ªÎÄ¼ş£º" << path1 << std::endl;
+		std::cerr << "æ— æ³•æ‰“å¼€æ–‡ä»¶ï¼š" << path1 << std::endl;
 	}
 
 	std::vector<std::pair<std::string,std::string>>v;
@@ -364,18 +364,18 @@ inline void create::printVector(std::vector<std::string>& v)
 
 std::vector<std::string> create::getDatabase()
 {
-	// Ö¸¶¨Ä¿Â¼µÄÂ·¾¶
+	// æŒ‡å®šç›®å½•çš„è·¯å¾„
 	std::string directoryPath = "./dbms";
 	std::vector<std::string> v;
 	try 
 	{
-		// Ê¹ÓÃdirectory_iterator±éÀúÄ¿Â¼
+		// ä½¿ç”¨directory_iteratoréå†ç›®å½•
 		for (const auto& entry : fs::directory_iterator(directoryPath)) 
 		{
-			// ¼ì²éÊÇ·ñÊÇÎÄ¼ş¼Ğ
+			// æ£€æŸ¥æ˜¯å¦æ˜¯æ–‡ä»¶å¤¹
 			if (fs::is_directory(entry.path())) 
 			{
-				// Êä³öÎÄ¼ş¼ĞÃû³Æ
+				// è¾“å‡ºæ–‡ä»¶å¤¹åç§°
 				std::cout << entry.path().filename().string() << std::endl;
 				v.push_back(entry.path().filename().string());
 			}
@@ -403,13 +403,13 @@ inline std::vector<std::string> create::selectData(std::string name, std::vector
 
 	std::vector<std::string> v;
 
-	// ´ò¿ªÎÄ¼şÁ÷
+	// æ‰“å¼€æ–‡ä»¶æµ
 	std::ifstream inputFile(path1);
 
-	// ¼ì²éÎÄ¼şÊÇ·ñ³É¹¦´ò¿ª
+	// æ£€æŸ¥æ–‡ä»¶æ˜¯å¦æˆåŠŸæ‰“å¼€
 	if (inputFile.is_open())
 	{
-		// ÖğĞĞ¶ÁÈ¡ÎÄ¼şÄÚÈİ
+		// é€è¡Œè¯»å–æ–‡ä»¶å†…å®¹
 		std::string line;
 		tableVariable.clear();
 		while (std::getline(inputFile, line))
@@ -422,7 +422,7 @@ inline std::vector<std::string> create::selectData(std::string name, std::vector
 	}
 	else
 	{
-		std::cerr << "ÎŞ·¨´ò¿ªÎÄ¼ş£º" << path1 << std::endl;
+		std::cerr << "æ— æ³•æ‰“å¼€æ–‡ä»¶ï¼š" << path1 << std::endl;
 	}
 
 	std::vector<std::string> need = getWhereData(v);
@@ -454,7 +454,7 @@ inline std::vector<std::string> create::getWhereData(std::vector<std::string>& v
 	std::vector<std::string>deleteList;
 	for (const auto& data : v)
 	{
-		//word[0] Ó¦¸ÃÊÇÊı¾İÃû£¬word[1] Ó¦¸ÃÊÇÊı¾İÖµ, word[2]Ó¦¸ÃÊÇµÚ¼¸¸öÊı¾İ
+		//word[0] åº”è¯¥æ˜¯æ•°æ®åï¼Œword[1] åº”è¯¥æ˜¯æ•°æ®å€¼, word[2]åº”è¯¥æ˜¯ç¬¬å‡ ä¸ªæ•°æ®
 		std::vector<std::string>word = stringSplit(data);
 		int count = 0;
 		int destion = whereMap.size();
@@ -524,13 +524,13 @@ inline void create::updateData(std::string name, std::map<std::string, std::stri
 
 	std::vector<std::string> v;
 
-	// ´ò¿ªÎÄ¼şÁ÷
+	// æ‰“å¼€æ–‡ä»¶æµ
 	std::ifstream inputFile(path1);
 
-	// ¼ì²éÎÄ¼şÊÇ·ñ³É¹¦´ò¿ª
+	// æ£€æŸ¥æ–‡ä»¶æ˜¯å¦æˆåŠŸæ‰“å¼€
 	if (inputFile.is_open())
 	{
-		// ÖğĞĞ¶ÁÈ¡ÎÄ¼şÄÚÈİ
+		// é€è¡Œè¯»å–æ–‡ä»¶å†…å®¹
 		std::string line;
 		tableVariable.clear();
 		while (std::getline(inputFile, line))
@@ -543,7 +543,7 @@ inline void create::updateData(std::string name, std::map<std::string, std::stri
 	}
 	else
 	{
-		std::cerr << "ÎŞ·¨´ò¿ªÎÄ¼ş£º" << path1 << std::endl;
+		std::cerr << "æ— æ³•æ‰“å¼€æ–‡ä»¶ï¼š" << path1 << std::endl;
 	}
 
 	std::vector<std::string> needUpdate = getWhereData(v);
@@ -581,7 +581,7 @@ inline void create::checkAndDelete(std::list<std::string>& l)
 	std::list<std::string>deleteList;
 	for (const auto& data : l)
 	{
-		//word[0] Ó¦¸ÃÊÇÊı¾İÃû£¬word[1] Ó¦¸ÃÊÇÊı¾İÖµ, word[2]Ó¦¸ÃÊÇµÚ¼¸¸öÊı¾İ
+		//word[0] åº”è¯¥æ˜¯æ•°æ®åï¼Œword[1] åº”è¯¥æ˜¯æ•°æ®å€¼, word[2]åº”è¯¥æ˜¯ç¬¬å‡ ä¸ªæ•°æ®
 		std::vector<std::string>word = stringSplit(data);
 		int count = 0;
 		int destion = whereMap.size();
@@ -668,13 +668,13 @@ inline void create::deleteData(std::string name)
 
 	std::list<std::string> v;
 
-	// ´ò¿ªÎÄ¼şÁ÷
+	// æ‰“å¼€æ–‡ä»¶æµ
 	std::ifstream inputFile(path1);
 
-	// ¼ì²éÎÄ¼şÊÇ·ñ³É¹¦´ò¿ª
+	// æ£€æŸ¥æ–‡ä»¶æ˜¯å¦æˆåŠŸæ‰“å¼€
 	if (inputFile.is_open())
 	{
-		// ÖğĞĞ¶ÁÈ¡ÎÄ¼şÄÚÈİ
+		// é€è¡Œè¯»å–æ–‡ä»¶å†…å®¹
 		std::string line;
 		tableVariable.clear();
 		while (std::getline(inputFile, line))
@@ -687,7 +687,7 @@ inline void create::deleteData(std::string name)
 	}
 	else
 	{
-		std::cerr << "ÎŞ·¨´ò¿ªÎÄ¼ş£º" << path1 << std::endl;
+		std::cerr << "æ— æ³•æ‰“å¼€æ–‡ä»¶ï¼š" << path1 << std::endl;
 	}
 
 	checkAndDelete(v);
@@ -705,13 +705,13 @@ inline void create::showData(std::string name)
 
 	std::vector<std::string> v;
 
-	// ´ò¿ªÎÄ¼şÁ÷
+	// æ‰“å¼€æ–‡ä»¶æµ
 	std::ifstream inputFile(path1);
 
-	// ¼ì²éÎÄ¼şÊÇ·ñ³É¹¦´ò¿ª
+	// æ£€æŸ¥æ–‡ä»¶æ˜¯å¦æˆåŠŸæ‰“å¼€
 	if (inputFile.is_open())
 	{
-		// ÖğĞĞ¶ÁÈ¡ÎÄ¼şÄÚÈİ
+		// é€è¡Œè¯»å–æ–‡ä»¶å†…å®¹
 		std::string line;
 		tableVariable.clear();
 		while (std::getline(inputFile, line))
@@ -724,7 +724,7 @@ inline void create::showData(std::string name)
 	}
 	else
 	{
-		std::cerr << "ÎŞ·¨´ò¿ªÎÄ¼ş£º" << path1 << std::endl;
+		std::cerr << "æ— æ³•æ‰“å¼€æ–‡ä»¶ï¼š" << path1 << std::endl;
 	}
 	//data.resize(100);
 	std::vector<std::string> variable1;
