@@ -15,6 +15,8 @@ private:
 	std::map<std::pair<std::string,std::string>,int>deleteWhere;
 	std::map<std::string, std::string>updateMap;
 	std::map<std::pair<std::string, std::string>, int>whereMap;
+	std::vector<std::string> selectVariable;
+	std::vector<std::string> selectVariableData;
 
 private:
 	std::vector<std::string> stringSplit(std::string str);
@@ -46,6 +48,7 @@ inline Analyse::~Analyse()
 inline void Analyse::grammarAnalyse(std::string _code)
 {
 	code = _code;
+	words.clear();
 	words = stringSplitPlus(*engineer, _code);
 	bool flage = false;
 	if (words[0] == "create")
@@ -96,7 +99,8 @@ inline void Analyse::grammarAnalyse(std::string _code)
 	if (words[0] == "select")
 	{
 		flage = true;
-
+		std::cout << "select begin!" << std::endl;
+		selectData();
 	}
 	if (!flage)
 	{
@@ -106,6 +110,9 @@ inline void Analyse::grammarAnalyse(std::string _code)
 
 inline void Analyse::insertData()
 {
+	insertMap.clear();
+	values.clear();
+	columns.clear();
 	try {
 		if (words.at(1) != "into")
 		{
@@ -148,6 +155,7 @@ inline void Analyse::insertData()
 	}
 	while (word != ":" && index < words.size())
 	{
+
 		columns.push_back(word);
 		try {
 			word = words.at(++index);
@@ -266,7 +274,7 @@ inline bool Analyse::getWhereMap(std::string whereCode)
 		//id = 1
 		bool flag = false;
 		std::vector<std::string>variable1 = stringSplitPlus(*engineer, cur);
-		if (variable1[1] == "==")
+		if (variable1[1] == "=")
 		{
 			flag = true;
 			whereMap.insert({ std::pair(variable1[0],variable1[2]),0 });
@@ -427,4 +435,43 @@ inline void Analyse::updateData()
 		std::cerr << "Caught an out_of_range exception: " << e.what() << std::endl;
 		return;
 	}
+}
+
+inline void Analyse::selectData()
+{
+	try 
+	{
+		name = words.at(3);
+		int pos1 = code.find(words.at(1));
+		int pos2 = pos1 + words.at(1).size() + 1;
+		selectVariable = stringSplit(std::string(code.begin() + pos1, code.begin() + pos2));
+		int pos3 = code.find("{");
+		int pos4 = code.find("}");
+		if (!(pos3 >= 0 && pos3 < pos4 && pos4 <= code.size()))
+		{
+			std::cout << "SQL Error !" << "need {}" << std::endl;
+			return;
+		}
+		if (getWhereMap(std::string(code.begin() + pos3 + 1,code.begin() + pos4)))
+		{
+			std::cout << "*****************" << std::endl;
+			engineer->setWhere(whereMap);
+			selectVariableData = engineer->selectData(name, selectVariable);
+			for (const auto& cur : selectVariableData)
+			{
+				std::cout<<"cur = "<<cur<<std::endl;
+			}
+		}
+		else
+		{
+			std::cout << "SQL Error !" << "Where Error !" << "Error code : " << code << std::endl;
+			return;
+		}
+	}
+	catch (const std::out_of_range& e) 
+	{
+		std::cerr << "Caught an out_of_range exception: " << e.what() << std::endl;
+		return;
+	}
+
 }

@@ -1,2 +1,2 @@
-./dbms/books/price.txt 2
+./dbms/books/price.txt 7
 ./dbms/student/score.txt 0

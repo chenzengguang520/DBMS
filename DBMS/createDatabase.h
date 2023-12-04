@@ -326,17 +326,14 @@ inline void create::insert(std::string name, std::map<std::string, std::string> 
 		tableVariable.clear();
 		while (std::getline(inputFile, line)) 
 		{
-			std::cout << line << std::endl;
 			std::vector<std::string> words = stringSplit(line);
 			tableVariable[words[0]] = words[1];
 			//std::cout << "words[1] = " << words[1] << std::endl;
 		}
 		//std::cout << "-----------------" << std::endl;
 		// 关闭文件流
-		std::cout << "path1 = " << path1 << std::endl;
 		int count = std::stoi(variableCount[path1]);
 		count++;
-		std::cout << "count = " << count << std::endl;
 		variableCount[path1] = std::to_string(count);
 		inputFile.close();
 	}
@@ -344,12 +341,10 @@ inline void create::insert(std::string name, std::map<std::string, std::string> 
 	{
 		std::cerr << "无法打开文件：" << path1 << std::endl;
 	}
-	std::cout << "------------------" << std::endl;
 	std::vector<std::pair<std::string,std::string>>v;
 	for (const auto cur : data)
 	{
 		std::string variable = cur.second;
-		std::cout << "variable = " << variable << std::endl;
 		v.push_back(std::pair(cur.first, variable));
 	}
 	std::string path2 = "./data/" + name + ".txt";
@@ -417,7 +412,6 @@ inline std::vector<std::string> create::selectData(std::string name, std::vector
 		tableVariable.clear();
 		while (std::getline(inputFile, line))
 		{
-			std::cout << line << std::endl;
 			v.push_back(line);
 		}
 		//std::cout << "******************" << std::endl;
@@ -678,7 +672,6 @@ inline void create::deleteData(std::string name)
 		tableVariable.clear();
 		while (std::getline(inputFile, line))
 		{
-			std::cout << line << std::endl;
 			v.push_back(line);
 		}
 		//std::cout << "******************" << std::endl;
@@ -716,7 +709,6 @@ inline void create::showData(std::string name)
 		tableVariable.clear();
 		while (std::getline(inputFile, line))
 		{
-			std::cout << line << std::endl;
 			v.push_back(line);
 		}
 		//std::cout << "******************" << std::endl;
