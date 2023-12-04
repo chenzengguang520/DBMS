@@ -129,13 +129,15 @@ inline std::vector<std::string> create::getTable()
 {
 	std::vector<std::string> v;
 	//std::cout << dataBasePath << std::endl;
-	try {
-		for (const auto& entry : fs::directory_iterator(dataBasePath)) {
-			std::cout << entry.path().filename() << std::endl;
+	try 
+	{
+		for (const auto& entry : fs::directory_iterator(dataBasePath)) 
+		{
 			v.push_back(entry.path().filename().string());
 		}
 	}
-	catch (const std::exception& e) {
+	catch (const std::exception& e) 
+	{
 		std::cerr << "Error: " << e.what() << std::endl;
 	}
 	return v;
@@ -374,8 +376,6 @@ std::vector<std::string> create::getDatabase()
 			// 检查是否是文件夹
 			if (fs::is_directory(entry.path())) 
 			{
-				// 输出文件夹名称
-				std::cout << entry.path().filename().string() << std::endl;
 				v.push_back(entry.path().filename().string());
 			}
 		}
@@ -434,8 +434,9 @@ inline std::vector<std::string> create::selectData(std::string name, std::vector
 			{
 				for (const auto& variablename : variableName)
 				{
-					if (words2[0] == variablename)
+					if (stringSplit(words2[0])[0] == stringSplit(variablename)[0])
 					{
+						std::cout << "data = " << data << std::endl;
 						needData.push_back(data);
 					}
 				}
@@ -720,7 +721,6 @@ inline void create::showData(std::string name)
 	}
 	//data.resize(100);
 	std::vector<std::string> variable1;
-	
 	for (int i = 0; i < std::stoi(variableCount[dataBasePath + name + ".txt"]);i++)
 	{
 		for (const auto& var : v)

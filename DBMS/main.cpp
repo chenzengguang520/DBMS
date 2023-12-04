@@ -9,14 +9,14 @@ void test()
 	map<string, string>m;
 	m["age"] = "int";
 	m["score"] = "string";
-	c->createTable("score",m);
+	c->createTable("score", m);
 	map<string, string>data;
 	data["age"] = "12";
 	data["score"] = "92";
 	c->insert("score", data);
 	c->showData("score");
 	map<pair<string, string>, int>m1;
-	m1.insert({ pair("age","5"),0});
+	m1.insert({ pair("age","5"),0 });
 	c->setWhere(m1);
 	c->deleteData("score");
 
@@ -30,14 +30,14 @@ void test()
 	map<pair<string, string>, int>m4;
 	m4.insert({ pair("age","9"),0 });
 	c->setWhere(m4);
-	vector<string>v = { "age" ,"score"};
+	vector<string>v = { "age" ,"score" };
 	vector<string>data1 = c->selectData("score", v);
 	for (const auto& cur : data1)
 	{
 		cout << cur << endl;
 	}
 
- 	c->~create();
+	c->~create();
 
 }
 
@@ -52,6 +52,11 @@ void analyseTest()
 		getline(std::cin, code);
 		if (code == "quit")
 			break;
+		if (code == "clear")
+		{
+			system("cls");
+			continue;
+		}
 		analyser->grammarAnalyse(code);
 	}
 	analyser->~Analyse();

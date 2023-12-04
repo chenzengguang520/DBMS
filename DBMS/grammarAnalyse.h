@@ -1,9 +1,12 @@
 ﻿#pragma once
 #include "createDatabase.h"
+#include "Table.h"
 class Analyse
 {
 
 private:
+	Tabler* tabler = nullptr;
+	Table* table = nullptr;
 	create* engineer = nullptr;
 	std::string code;
 	std::vector<std::string>words;
@@ -17,6 +20,8 @@ private:
 	std::map<std::pair<std::string, std::string>, int>whereMap;
 	std::vector<std::string> selectVariable;
 	std::vector<std::string> selectVariableData;
+	std::vector<std::string>tables;
+	std::vector<std::string>databases;
 
 private:
 	std::vector<std::string> stringSplit(std::string str);
@@ -31,12 +36,16 @@ public:
 	void deleteData();
 	void updateData();
 	void selectData();
+	void showTable();
+
 	
 };
 
 Analyse::Analyse()
 {
 	engineer= new create();
+	tabler = new Tabler();
+	table = new Table();
 
 }
 
@@ -100,6 +109,16 @@ inline void Analyse::grammarAnalyse(std::string _code)
 	{
 		flage = true;
 		selectData();
+
+
+
+
+
+	}
+	if (words[0] == "show")
+	{
+		flage = true;
+		showTable();
 	}
 	if (!flage)
 	{
@@ -444,6 +463,10 @@ inline void Analyse::selectData()
 		int pos1 = code.find(words.at(1));
 		int pos2 = pos1 + words.at(1).size() + 1;
 		selectVariable = stringSplit(std::string(code.begin() + pos1, code.begin() + pos2));
+		for (const auto& cur : selectVariable)
+		{
+			std::cout << "cur = " << cur << std::endl;
+		}
 		int pos3 = code.find("{");
 		int pos4 = code.find("}");
 		if (!(pos3 >= 0 && pos3 < pos4 && pos4 <= code.size()))
@@ -455,10 +478,51 @@ inline void Analyse::selectData()
 		{
 			engineer->setWhere(whereMap);
 			selectVariableData = engineer->selectData(name, selectVariable);
+
+			std::map<std::string, std::vector<std::string>> m;
 			for (const auto& cur : selectVariableData)
 			{
-				std::cout<<"cur = "<<cur<<std::endl;
+				std::vector<std::string>words11 = stringSplitPlus(*engineer, cur);
+				m[words11[2]].push_back(words11[0] + " " + words11[1]);
 			}
+			for (auto& cur : m)
+			{
+				for (int i = 0; i < cur.second.size() - 1; i++)
+				{
+					for (int j = i + 1; j < cur.second.size(); j++)
+					{
+						std::string str1(code.begin() + pos1, code.begin() + pos2);
+						if (str1.find(stringSplitPlus(*engineer, cur.second[i])[0]) > str1.find(stringSplitPlus(*engineer, cur.second[j])[0]))
+						{
+							std::string str = cur.second[i];
+							cur.second[i] = cur.second[j];
+							cur.second[j] = str;
+						}
+					}
+				}
+			}
+			std::vector<std::vector<std::string>>needData;
+			for (const auto& cur : m)
+			{
+				std::vector<std::string>v2;
+				for (const auto& data : cur.second)
+				{
+					std::cout << "data = " << data << std::endl;
+					std::vector<std::string>v1 = stringSplitPlus(*engineer, data);
+					v2.push_back(v1[1]);
+				}
+				needData.push_back(v2);
+			}
+			table->name = name;
+			for (const auto& cur : selectVariable)
+			{
+				std::cout << "cur = " << cur << std::endl;
+			}
+			table->columns = selectVariable;
+			table->data = needData;
+			tabler->addTable(*table);
+			tabler->showTableData(name);
+			tabler->init();
 		}
 		else
 		{
@@ -472,4 +536,36 @@ inline void Analyse::selectData()
 		return;
 	}
 
+}
+
+inline void Analyse::showTable()
+{
+	try
+	{
+		if (words.at(1) == "table")
+		{
+			tables = engineer->getTable();
+			for (const auto& cur : tables)
+			{
+				std::cout << cur << std::endl;
+			}
+		}
+		else if (words.at(1) == "database")
+		{
+			databases = engineer->getDatabase();
+			for (const auto& cur : databases)
+			{
+				std::cout << cur << std::endl;
+			}
+		}
+		else
+		{
+			std::cout << "SQL Error ! " << "can't recognition " << words.at(1) << "Error code : " << code << std::endl;
+		}
+	}
+	catch (const std::out_of_range& e)
+	{
+		std::cerr << "Caught an out_of_range exception: " << e.what() << std::endl;
+		return;
+	}
 }
