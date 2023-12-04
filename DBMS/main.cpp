@@ -32,7 +32,6 @@ void test()
 	c->setWhere(m4);
 	vector<string>v = { "age" ,"score"};
 	vector<string>data1 = c->selectData("score", v);
-	cout << " ********************* " << endl;
 	for (const auto& cur : data1)
 	{
 		cout << cur << endl;
@@ -51,8 +50,11 @@ void analyseTest()
 		cout << "cyw DBMS SQL>> ";
 		string code;
 		getline(std::cin, code);
+		if (code == "quit")
+			break;
 		analyser->grammarAnalyse(code);
 	}
+	analyser->~Analyse();
 }
 
 int main()

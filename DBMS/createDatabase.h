@@ -112,6 +112,9 @@ inline bool create::createTable(std::string name,std::map<std::string,std::strin
 	newFile.close();
 
 	writeFile(filePath, m);
+	//filePath = "./file/variableCount.txt";
+	variableCount[filePath] = "0";
+	writeFile(filePath, variableCount);
 
 	return true;
 }
@@ -331,10 +334,14 @@ inline void create::insert(std::string name, std::map<std::string, std::string> 
 			std::cout << line << std::endl;
 			std::vector<std::string> words = stringSplit(line);
 			tableVariable[words[0]] = words[1];
+			//std::cout << "words[1] = " << words[1] << std::endl;
 		}
+		//std::cout << "-----------------" << std::endl;
 		// 关闭文件流
+		std::cout << "path1 = " << path1 << std::endl;
 		int count = std::stoi(variableCount[path1]);
 		count++;
+		std::cout << "count = " << count << std::endl;
 		variableCount[path1] = std::to_string(count);
 		inputFile.close();
 	}
@@ -342,14 +349,16 @@ inline void create::insert(std::string name, std::map<std::string, std::string> 
 	{
 		std::cerr << "无法打开文件：" << path1 << std::endl;
 	}
-
+	std::cout << "------------------" << std::endl;
 	std::vector<std::pair<std::string,std::string>>v;
 	for (const auto cur : data)
 	{
 		std::string variable = cur.second;
+		std::cout << "variable = " << variable << std::endl;
 		v.push_back(std::pair(cur.first, variable));
 	}
 	std::string path2 = "./data/" + name + ".txt";
+	std::cout << "/*/*/*/*/*/*/*///*" << std::endl;
 	writeFile(path2, v,std::stoi(variableCount[path1]));
 
 }
@@ -387,7 +396,6 @@ std::vector<std::string> create::getDatabase()
 		std::cerr << "Error accessing directory: " << ex.what() << std::endl;
 	}
 	return v;
-
 }
 
 inline create::~create()
@@ -695,6 +703,7 @@ inline void create::deleteData(std::string name)
 
 	writeFile(path1, v);
 
+	std::cout << "dataBasePath + name + \".txt\" = " << dataBasePath + name + ".txt" << std::endl;
 	variableCount[dataBasePath + name + ".txt"] = std::to_string(v.size());
 	std::cout << v.size() << std::endl;
 
