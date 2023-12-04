@@ -1,0 +1,4 @@
+id 1 1
+price 50 1
+id 2 2
+price 200 2

@@ -25,3 +25,5 @@ score 92 13
 age 12 14
 score 92 14
 age 19 15
+id 5 0
+price 19 0

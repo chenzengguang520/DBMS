@@ -2,7 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <filesystem>
-#include <map>	
+#include <map>
 #include <string>
 namespace fs = std::filesystem;
 
@@ -297,9 +297,7 @@ inline create::create()
 		std::string line;
 		while (std::getline(inputFile1, line))
 		{
-		//	std::cout << line  << std::endl;
 			std::vector<std::string>v = stringSplit(line);
-			//std::cout << v[0] << " " << v[1] << std::endl;
 			variableCount.insert({ v[0],v[1]});
 		}
 		// 关闭文件流
@@ -309,9 +307,6 @@ inline create::create()
 	{
 		std::cerr << "无法打开文件：" << filePath << std::endl;
 	}
-
-
-	//std::cout << " ---------------- " << std::endl;
 }
 
 //[id] = 2
@@ -358,7 +353,6 @@ inline void create::insert(std::string name, std::map<std::string, std::string> 
 		v.push_back(std::pair(cur.first, variable));
 	}
 	std::string path2 = "./data/" + name + ".txt";
-	std::cout << "/*/*/*/*/*/*/*///*" << std::endl;
 	writeFile(path2, v,std::stoi(variableCount[path1]));
 
 }
@@ -544,10 +538,8 @@ inline void create::updateData(std::string name, std::map<std::string, std::stri
 		tableVariable.clear();
 		while (std::getline(inputFile, line))
 		{
-			std::cout << line << std::endl;
 			v.push_back(line);
 		}
-		//std::cout << "******************" << std::endl;
 		inputFile.close();
 	}
 	else
@@ -556,8 +548,6 @@ inline void create::updateData(std::string name, std::map<std::string, std::stri
 	}
 
 	std::vector<std::string> needUpdate = getWhereData(v);
-
-	std::cout << "needUpdate.size() = " << needUpdate.size() << std::endl;
 
 	std::vector<std::string> allNeedUpdate;
 

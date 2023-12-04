@@ -13,10 +13,13 @@ private:
 	std::map<std::string, std::string>insertMap;
 	std::map<std::string, std::string> columnsName;//存储表含有的变量的
 	std::map<std::pair<std::string,std::string>,int>deleteWhere;
+	std::map<std::string, std::string>updateMap;
+	std::map<std::pair<std::string, std::string>, int>whereMap;
 
 private:
 	std::vector<std::string> stringSplit(std::string str);
 	std::vector<std::string> stringSplit(std::string str,std::string );
+	bool getWhereMap(std::string);
 public:
 	Analyse();
 	~Analyse();
@@ -88,7 +91,7 @@ inline void Analyse::grammarAnalyse(std::string _code)
 	if (words[0] == "update")
 	{
 		flage = true;
-
+		updateData();
 	}
 	if (words[0] == "select")
 	{
@@ -253,6 +256,56 @@ std::vector<std::string> Analyse::stringSplit(std::string str, std::string split
 	return v;
 }
 
+inline bool Analyse::getWhereMap(std::string whereCode)
+{
+	//id = 1 and id = 2
+	whereMap.clear();
+	std::vector<std::string>v = stringSplit(whereCode,"and");
+	for (const auto& cur : v)
+	{
+		//id = 1
+		bool flag = false;
+		std::vector<std::string>variable1 = stringSplitPlus(*engineer, cur);
+		std::cout << "variable[1] = " << variable1[1] << std::endl;
+		if (variable1[1] == "==")
+		{
+			flag = true;
+			whereMap.insert({ std::pair(variable1[0],variable1[2]),0 });
+		}
+		if (variable1[1] == ">")
+		{
+			flag = true;
+			whereMap.insert({ std::pair(variable1[0],variable1[2]),1 });
+		}
+		if (variable1[1] == "<")
+		{
+			flag = true;
+			whereMap.insert({ std::pair(variable1[0],variable1[2]),2 });
+		}
+		if (variable1[1] == "<=")
+		{
+			flag = true;
+			whereMap.insert({ std::pair(variable1[0],variable1[2]),3 });
+		}
+		if (variable1[1] == ">=")
+		{
+			flag = true;
+			whereMap.insert({ std::pair(variable1[0],variable1[2]),4 });
+		}
+		if (variable1[1] == "!=")
+		{
+			flag = true;
+			whereMap.insert({ std::pair(variable1[0],variable1[2]),5 });
+		}
+		if (!flag)
+		{
+			whereMap.clear();
+			return false;
+		}
+	}
+	return true;
+}
+
 void Analyse::deleteData()
 {
 	try {
@@ -325,5 +378,54 @@ void Analyse::deleteData()
 	else
 	{
 		engineer->deleteData(name);
+	}
+}
+
+inline void Analyse::updateData()
+{
+	try {
+		name = words.at(1);
+		if (words.at(2) == "set")
+		{
+			if (words.at(4) != "=")
+			{
+				std::cout<< "SQL Error " << words.at(4) << "CODE Error! " << code << std::endl;
+				return;
+			}
+			updateMap[words.at(3)] = words.at(5);
+			int pos1 = code.find("{");
+			int pos2 = code.find("}");
+			for (const auto& cur : updateMap)
+			{
+				std::cout << "cur.first = " << cur.first << " " << "cur.seconde = " << cur.second << std::endl;
+			}
+			if (pos1 > 0 && pos1 < pos2 && pos2 < code.size())
+			{
+				if (getWhereMap(std::string(code.begin() + pos1 + 1,code.begin() + pos2)))
+				{
+					engineer->setWhere(whereMap);
+					engineer->updateData(name,updateMap);
+				}
+				else
+				{
+					std::cout<<"SQL Error!"<<"Where code Error!"<<" Error code : "<<code<<std::endl;
+					return;
+				}
+			}
+			else
+			{
+				std::cout << "SQL Error!" << "need {} " << "Error code : " << code << std::endl;
+			}
+			engineer->updateData(name, updateMap);
+		}
+		else
+		{
+			std::cout << "SQL Error " << words.at(2) << "CODE Error! " << code << std::endl;
+			return;
+		}
+	}
+	catch (const std::out_of_range& e) {
+		std::cerr << "Caught an out_of_range exception: " << e.what() << std::endl;
+		return;
 	}
 }
