@@ -99,7 +99,6 @@ inline void Analyse::grammarAnalyse(std::string _code)
 	if (words[0] == "select")
 	{
 		flage = true;
-		std::cout << "select begin!" << std::endl;
 		selectData();
 	}
 	if (!flage)
@@ -454,7 +453,6 @@ inline void Analyse::selectData()
 		}
 		if (getWhereMap(std::string(code.begin() + pos3 + 1,code.begin() + pos4)))
 		{
-			std::cout << "*****************" << std::endl;
 			engineer->setWhere(whereMap);
 			selectVariableData = engineer->selectData(name, selectVariable);
 			for (const auto& cur : selectVariableData)
