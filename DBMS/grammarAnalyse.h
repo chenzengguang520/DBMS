@@ -266,7 +266,6 @@ inline bool Analyse::getWhereMap(std::string whereCode)
 		//id = 1
 		bool flag = false;
 		std::vector<std::string>variable1 = stringSplitPlus(*engineer, cur);
-		std::cout << "variable[1] = " << variable1[1] << std::endl;
 		if (variable1[1] == "==")
 		{
 			flag = true;
