@@ -3,7 +3,6 @@
 #include "Table.h"
 class Analyse
 {
-
 private:
 	Tabler* tabler = nullptr;
 	Table* table = nullptr;
@@ -22,11 +21,13 @@ private:
 	std::vector<std::string> selectVariableData;
 	std::vector<std::string>tables;
 	std::vector<std::string>databases;
-
+	std::set<std::string>columnName;
+	std::set<std::string>tableName;
 private:
 	std::vector<std::string> stringSplit(std::string str);
 	std::vector<std::string> stringSplit(std::string str,std::string );
 	bool getWhereMap(std::string);
+	void getColumnName();
 public:
 	Analyse();
 	~Analyse();
@@ -36,9 +37,7 @@ public:
 	void deleteData();
 	void updateData();
 	void selectData();
-	void showTable();
-
-	
+	void showTable();	
 };
 
 Analyse::Analyse()
@@ -109,10 +108,6 @@ inline void Analyse::grammarAnalyse(std::string _code)
 	{
 		flage = true;
 		selectData();
-
-
-
-
 
 	}
 	if (words[0] == "show")
@@ -197,8 +192,14 @@ inline void Analyse::insertData()
 		std::cout << "values number != column number!" << std::endl;
 		return;
 	}
+	getColumnName();
 	for (int i = 0; i < values.size(); i++)
 	{
+		if (columnName.find(stringSplitPlus(*engineer,columns[i])[0]) == columnName.end())
+		{
+			std::cout << "SQL Error ! " << "Error code : " << columns[i] << std::endl;
+			return;
+		}
 		insertMap.insert({ columns[i],values[i] });
 	}
 	std::cout << "name = " << name << std::endl;
@@ -222,7 +223,7 @@ void Analyse::createTableData()
 	}
 	int pos1 = code.find("(");
 	int pos2 = code.find(")");
-	if (!((pos1 > 0 && pos1 < pos2) && (pos2 > pos1 && pos2 < code.size())))
+	if (!(pos1 > 0 && pos2 > pos1 && pos2 < code.size()))
 	{
 		std::cout << "SQL Error need ()!" << std::endl;
 		return;
@@ -331,29 +332,39 @@ inline bool Analyse::getWhereMap(std::string whereCode)
 	return true;
 }
 
+inline void Analyse::getColumnName()
+{
+	for (const auto& cur : engineer->getColumn(name))
+	{
+		columnName.insert(stringSplitPlus(*engineer, cur)[0]);
+	}
+}
 void Analyse::deleteData()
 {
-	try {
+	try 
+	{
 		if (words.at(1) != "from")
 		{
 			std::cout << "SQL Error: " << words[1] << " SQL error code: " << code << std::endl;
 			return;
 		}
 	}
-	catch (const std::out_of_range& e) {
+	catch (const std::out_of_range& e) 
+	{
 		std::cerr << "Caught an out_of_range exception: " << e.what() << std::endl;
 		return;
 	}
 
-	try {
+	try 
+	{
 		name = words.at(2);
 	}
-	catch (const std::out_of_range& e) {
+	catch (const std::out_of_range& e) 
+	{
 		std::cerr << "Caught an out_of_range exception: " << e.what() << std::endl;
 		return;
 	}
 	int posWhere = code.find("where");
-	//std::cout << "posWhere = " << posWhere << std::endl;
 	if (posWhere > 0 && posWhere < code.size())
 	{
 		int pos1 = code.find("{");
@@ -361,10 +372,8 @@ void Analyse::deleteData()
 		if (pos1 > 0 && pos2 > pos1 && pos2 < code.size())
 		{
 			std::vector<std::string>variables = stringSplit(std::string(code.begin() + pos1 + 1, code.begin() + pos2), "and");
-			//variables[0] : id = 2
 			for (const auto& cur : variables)
 			{
-				std::cout << "cur = " << cur << std::endl;
 				std::vector<std::string>variable1 = stringSplitPlus(*engineer,cur);
 				std::cout << "variable1[1] = " << variable1[1] << std::endl;
 				if (variable1[1] == "==")
@@ -393,6 +402,8 @@ void Analyse::deleteData()
 				}
 			}
 			engineer->setWhere(deleteWhere);
+
+			std::cout << "deleteWhere.size() = " << deleteWhere.size() << std::endl;
 			engineer->deleteData(name);
 		}
 		else
@@ -460,75 +471,109 @@ inline void Analyse::selectData()
 	try 
 	{
 		name = words.at(3);
+		for (const auto& cur : engineer->getColumn(name))
+		{
+			columnName.insert(stringSplitPlus(*engineer,cur)[0]);
+		}
 		int pos1 = code.find(words.at(1));
 		int pos2 = pos1 + words.at(1).size() + 1;
 		selectVariable = stringSplit(std::string(code.begin() + pos1, code.begin() + pos2));
+		if (selectVariable.size() == 1 && stringSplitPlus(*engineer, selectVariable[0])[0] == "*")
+		{
+			std::set<std::string>s1;
+			for (const auto& cur : engineer->getColumn(name))
+			{
+				std::cout << "name = " << stringSplitPlus(*engineer, cur)[0] << std::endl;
+				s1.insert(stringSplitPlus(*engineer, cur)[0]);
+			}
+			std::vector<std::string>v1;
+			for (const auto& cur : s1)
+			{
+				v1.push_back(cur);
+			}
+			selectVariable = v1;
+		}
 		for (const auto& cur : selectVariable)
 		{
-			std::cout << "cur = " << cur << std::endl;
+			if (columnName.find(stringSplitPlus(*engineer,cur)[0]) == columnName.end())
+			{
+				std::cout << "SQL Error ! " << "Not Found " << cur << std::endl;
+				return;
+			}
+		}
+		for (const auto& cur : selectVariable)
+		{
+			std::cout << "curName = " << cur << std::endl;
+		}
+		int pos5 = code.find("where");
+		bool flag = false;
+		if(pos5 >= 0 && pos5 <= code.size())
+		{
+			flag = true;
 		}
 		int pos3 = code.find("{");
 		int pos4 = code.find("}");
-		if (!(pos3 >= 0 && pos3 < pos4 && pos4 <= code.size()))
+		if (!(pos3 >= 0 && pos3 < pos4 && pos4 <= code.size()) && flag)
 		{
 			std::cout << "SQL Error !" << "need {}" << std::endl;
 			return;
 		}
-		if (getWhereMap(std::string(code.begin() + pos3 + 1,code.begin() + pos4)))
+		if (flag && getWhereMap(std::string(code.begin() + pos3 + 1,code.begin() + pos4)))
 		{
 			engineer->setWhere(whereMap);
-			selectVariableData = engineer->selectData(name, selectVariable);
-
-			std::map<std::string, std::vector<std::string>> m;
-			for (const auto& cur : selectVariableData)
-			{
-				std::vector<std::string>words11 = stringSplitPlus(*engineer, cur);
-				m[words11[2]].push_back(words11[0] + " " + words11[1]);
-			}
-			for (auto& cur : m)
-			{
-				for (int i = 0; i < cur.second.size() - 1; i++)
-				{
-					for (int j = i + 1; j < cur.second.size(); j++)
-					{
-						std::string str1(code.begin() + pos1, code.begin() + pos2);
-						if (str1.find(stringSplitPlus(*engineer, cur.second[i])[0]) > str1.find(stringSplitPlus(*engineer, cur.second[j])[0]))
-						{
-							std::string str = cur.second[i];
-							cur.second[i] = cur.second[j];
-							cur.second[j] = str;
-						}
-					}
-				}
-			}
-			std::vector<std::vector<std::string>>needData;
-			for (const auto& cur : m)
-			{
-				std::vector<std::string>v2;
-				for (const auto& data : cur.second)
-				{
-					std::cout << "data = " << data << std::endl;
-					std::vector<std::string>v1 = stringSplitPlus(*engineer, data);
-					v2.push_back(v1[1]);
-				}
-				needData.push_back(v2);
-			}
-			table->name = name;
-			for (const auto& cur : selectVariable)
-			{
-				std::cout << "cur = " << cur << std::endl;
-			}
-			table->columns = selectVariable;
-			table->data = needData;
-			tabler->addTable(*table);
-			tabler->showTableData(name);
-			tabler->init();
 		}
 		else
 		{
-			std::cout << "SQL Error !" << "Where Error !" << "Error code : " << code << std::endl;
-			return;
+			if (flag)
+			{
+				std::cout << "SQL Error !" << "Where Error !" << "Error code : " << code << std::endl;
+				return;
+			}
 		}
+		selectVariableData = engineer->selectData(name, selectVariable);
+		for (const auto& cur : selectVariableData)
+		{
+			std::cout << "curData = " << cur << std::endl;
+		}
+		std::map<std::string, std::vector<std::string>> m;
+		for (const auto& cur : selectVariableData)
+		{
+			std::vector<std::string>words11 = stringSplitPlus(*engineer, cur);
+			m[words11[2]].push_back(words11[0] + " " + words11[1]);
+		}
+		for (auto& cur : m)
+		{
+			for (int i = 0; i < cur.second.size() - 1; i++)
+			{
+				for (int j = i + 1; j < cur.second.size(); j++)
+				{
+					std::string str1(code.begin() + pos1, code.begin() + pos2);
+					if (str1.find(stringSplitPlus(*engineer, cur.second[i])[0]) > str1.find(stringSplitPlus(*engineer, cur.second[j])[0]))
+					{
+						std::string str = cur.second[i];
+						cur.second[i] = cur.second[j];
+						cur.second[j] = str;
+					}
+				}
+			}
+		}
+		std::vector<std::vector<std::string>>needData;
+		for (const auto& cur : m)
+		{
+			std::vector<std::string>v2;
+			for (const auto& data : cur.second)
+			{
+				std::vector<std::string>v1 = stringSplitPlus(*engineer, data);
+				v2.push_back(v1[1]);
+			}
+			needData.push_back(v2);
+		}
+		table->name = name;
+		table->columns = selectVariable;
+		table->data = needData;
+		tabler->addTable(*table);
+		tabler->showTableData(name);
+		tabler->init();
 	}
 	catch (const std::out_of_range& e) 
 	{
@@ -540,6 +585,12 @@ inline void Analyse::selectData()
 
 inline void Analyse::showTable()
 {
+
+	for (const auto& cur : engineer->getTable())
+	{
+		int pos = cur.find(".txt");
+		tableName.insert(std::string(cur.begin(),cur.begin() + pos));
+	}
 	try
 	{
 		if (words.at(1) == "table")
@@ -547,7 +598,9 @@ inline void Analyse::showTable()
 			tables = engineer->getTable();
 			for (const auto& cur : tables)
 			{
-				std::cout << cur << std::endl;
+				int posdian = cur.find(".txt");
+				std::string tableName(cur.begin(), cur.begin() + posdian);
+				std::cout << tableName << std::endl;
 			}
 		}
 		else if (words.at(1) == "database")
@@ -556,6 +609,14 @@ inline void Analyse::showTable()
 			for (const auto& cur : databases)
 			{
 				std::cout << cur << std::endl;
+			}
+		}
+		else if (tableName.find(stringSplitPlus(*engineer,words.at(1))[0]) != tableName.end())
+		{
+			for (const auto& n : engineer->getColumn(stringSplitPlus(*engineer, words.at(1))[0]))
+			{
+				std::cout << n << std::endl;
+				//columnName.insert(stringSplitPlus(*engineer, n)[0]);
 			}
 		}
 		else

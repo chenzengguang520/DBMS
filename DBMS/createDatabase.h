@@ -3,12 +3,16 @@
 #include <fstream>
 #include <filesystem>
 #include <map>
+#include <set>
+#include <string>
 #include <string>
 namespace fs = std::filesystem;
 
 class create
 {
 private:
+	std::vector<std::string>columnName;
+	std::string dataPath;
 	std::string dataBasePath;
 	std::map<std::string, int> variableMap;
 	std::map<std::string, std::string> tableVariable;
@@ -22,6 +26,11 @@ private:
 public:
 	create();
 	~create();
+
+	std::vector<std::string> getColumn(std::string);
+
+	bool createFile(std::string);
+
 	friend std::vector<std::string> stringSplitPlus(create& e,std::string str);
 
 	std::vector<std::string> selectData(std::string, std::vector<std::string>&);//select column1,from table;
@@ -55,7 +64,7 @@ public:
 	std::vector<std::string> getTable();
 
 	void writeFile(std::string,std::map<std::string, std::string>m);
-	void writeFile(std::string filePath, std::vector<std::pair<std::string, std::string>> v,int count);
+	bool writeFile(std::string filePath, std::vector<std::pair<std::string, std::string>> v,int count);
 
 	void writeFile(std::string, std::list<std::string>& l);
 	void writeFile(std::string, std::vector<std::string>& v);
@@ -65,6 +74,8 @@ public:
 
 bool create::createDatabase(std::string name)
 {
+	std::string dataPath = "./data/" + name;
+	createFile(dataPath);
 	// 拼接当前路径和文件夹名
 	name = "./dbms/" + name;
 	fs::path folderPath = fs::current_path() / name;
@@ -112,8 +123,8 @@ inline bool create::createTable(std::string name,std::map<std::string,std::strin
 	newFile.close();
 
 	writeFile(filePath, m);
-	//filePath = "./file/variableCount.txt";
 	variableCount[filePath] = "0";
+	filePath = "./file/variableCount.txt";
 	writeFile(filePath, variableCount);
 
 	return true;
@@ -122,13 +133,12 @@ inline bool create::createTable(std::string name,std::map<std::string,std::strin
 inline void create::setDataBasePath(std::string path)
 {
 	dataBasePath = "./dbms/" + path + "/";
-
+	dataPath = path;
 }
 
 inline std::vector<std::string> create::getTable()
 {
 	std::vector<std::string> v;
-	//std::cout << dataBasePath << std::endl;
 	try 
 	{
 		for (const auto& entry : fs::directory_iterator(dataBasePath)) 
@@ -146,7 +156,6 @@ inline std::vector<std::string> create::getTable()
 inline void create::writeFile(std::string filePath,std::map<std::string, std::string> m)
 {
 	//std::string filePath = dataBasePath + name + ".txt"; // 替换为你希望写入内容的文件路径
-//	std::cout << filePath << std::endl;
 	// 打开文件流
 	std::ofstream outputFile(filePath);
 
@@ -167,12 +176,13 @@ inline void create::writeFile(std::string filePath,std::map<std::string, std::st
 	}
 }
 
-inline void create::writeFile(std::string filePath, std::vector<std::pair<std::string, std::string>> v,int count)
+inline bool create::writeFile(std::string filePath, std::vector<std::pair<std::string, std::string>> v,int count)
 {
 	std::ofstream outputFile(filePath, std::ios::app);
 
 	// 检查文件是否成功打开
-	if (outputFile.is_open()) {
+	if (outputFile.is_open()) 
+	{
 		for (const auto& cur : v)
 		{
 			outputFile << cur.first << " " << cur.second <<" " << count << "\n";
@@ -183,9 +193,12 @@ inline void create::writeFile(std::string filePath, std::vector<std::pair<std::s
 
 		std::cout << "内容已成功写入到文件：" << filePath << std::endl;
 	}
-	else {
+	else 
+	{
 		std::cerr << "无法打开文件：" << filePath << std::endl;
+		return false;
 	}
+	return true;
 
 }
 
@@ -349,9 +362,12 @@ inline void create::insert(std::string name, std::map<std::string, std::string> 
 		std::string variable = cur.second;
 		v.push_back(std::pair(cur.first, variable));
 	}
-	std::string path2 = "./data/" + name + ".txt";
-	writeFile(path2, v,std::stoi(variableCount[path1]));
-
+	std::string path2 = "./data/" + dataPath + "/" + name + ".txt";
+	if (!writeFile(path2, v, std::stoi(variableCount[path1])))
+	{
+		int count = std::stoi(variableCount[path1]);
+		variableCount[path1] = std::to_string(--count);
+	}
 }
 
 inline void create::printVector(std::vector<std::string>& v)
@@ -395,9 +411,65 @@ inline create::~create()
 
 }
 
+inline std::vector<std::string> create::getColumn(std::string name)
+{
+	std::string filePath = dataBasePath + name + ".txt";
+	// 创建文件流对象
+	std::ifstream inputFile(filePath);
+
+	// 检查文件是否成功打开
+	if (inputFile.is_open()) 
+	{
+		// 使用循环逐行读取文件内容
+		std::string line;
+		while (getline(inputFile, line)) 
+		{
+			columnName.push_back(line);
+		}
+
+		// 关闭文件流
+		inputFile.close();
+	}
+	else 
+	{
+		// 文件打开失败
+		std::cerr << "Unable to open file: " << filePath << std::endl;
+	}
+	return columnName;
+}
+
+inline bool create::createFile(std::string filePath)
+{
+	// 拼接当前路径和文件夹名
+	fs::path folderPath = fs::current_path() / filePath;
+
+	// 检查文件夹是否存在
+	if (fs::exists(folderPath) && fs::is_directory(folderPath))
+	{
+		std::cout << "Error: Folder '" << filePath << "' already exists." << std::endl;
+		return false;
+	}
+	else
+	{
+		// 创建文件夹
+		if (fs::create_directory(folderPath))
+		{
+			std::cout << "Folder '" << filePath << "' created successfully." << std::endl;
+			return true;
+		}
+		else
+		{
+			std::cerr << "Error: Unable to create folder '" << filePath << "'." << std::endl;
+			return false;
+		}
+	}
+
+
+}
+
 inline std::vector<std::string> create::selectData(std::string name, std::vector<std::string>& variableName)
 {
-	std::string path1 = "./data/" + name + ".txt";
+	std::string path1 = "./data/" + dataPath + "/" + name + ".txt";
 
 	std::vector<std::string> v;
 
@@ -414,7 +486,6 @@ inline std::vector<std::string> create::selectData(std::string name, std::vector
 		{
 			v.push_back(line);
 		}
-		//std::cout << "******************" << std::endl;
 		inputFile.close();
 	}
 	else
@@ -432,12 +503,18 @@ inline std::vector<std::string> create::selectData(std::string name, std::vector
 			std::vector<std::string>words2 = stringSplit(data);
 			if (words1[2] == words2[2])
 			{
-				for (const auto& variablename : variableName)
+				if (variableName.size() == 1 && stringSplit(variableName[0])[0] == "*")
 				{
-					if (stringSplit(words2[0])[0] == stringSplit(variablename)[0])
+					needData.push_back(data);
+				}
+				else
+				{
+					for (const auto& variablename : variableName)
 					{
-						std::cout << "data = " << data << std::endl;
-						needData.push_back(data);
+						if (stringSplit(words2[0])[0] == stringSplit(variablename)[0])
+						{
+							needData.push_back(data);
+						}
 					}
 				}
 			}
@@ -518,7 +595,7 @@ inline std::vector<std::string> create::getWhereData(std::vector<std::string>& v
 
 inline void create::updateData(std::string name, std::map<std::string, std::string>& m)
 {
-	std::string path1 = "./data/" + name + ".txt";
+	std::string path1 = "./data/" + dataPath + "/" + name + ".txt";
 
 	std::vector<std::string> v;
 
@@ -658,7 +735,7 @@ inline void create::checkAndDelete(std::list<std::string>& l)
 
 inline void create::deleteData(std::string name)
 {
-	std::string path1 = "./data/" + name + ".txt";
+	std::string path1 = "./data/" + dataPath + "/" + name + ".txt";
 
 	std::list<std::string> v;
 
@@ -687,7 +764,6 @@ inline void create::deleteData(std::string name)
 
 	writeFile(path1, v);
 
-	std::cout << "dataBasePath + name + \".txt\" = " << dataBasePath + name + ".txt" << std::endl;
 	variableCount[dataBasePath + name + ".txt"] = std::to_string(v.size());
 	std::cout << v.size() << std::endl;
 
@@ -712,7 +788,6 @@ inline void create::showData(std::string name)
 		{
 			v.push_back(line);
 		}
-		//std::cout << "******************" << std::endl;
 		inputFile.close();
 	}
 	else
@@ -725,7 +800,6 @@ inline void create::showData(std::string name)
 	{
 		for (const auto& var : v)
 		{
-			//std::cout << "var = " << var << std::endl;
 			std::vector<std::string> words = stringSplit(var);
 			std::string variableName = words[0];
 			std::string variableValue = words[1];
@@ -738,7 +812,6 @@ inline void create::showData(std::string name)
 		data.push_back(variable1);
 		variable1.clear();
 	}
-	//std::cout << "*************" << std::endl;
 	for (const auto& cur : data)
 	{
 		for (const auto& var : cur)

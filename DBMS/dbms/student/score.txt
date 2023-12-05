@@ -1,2 +1,2 @@
-age int
+num int
 score int
