@@ -1,2 +1,2 @@
 ./dbms/student/class.txt 0
-./dbms/student/score.txt 4
+./dbms/student/score.txt 0

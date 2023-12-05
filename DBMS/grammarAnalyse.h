@@ -401,6 +401,8 @@ void Analyse::deleteData()
 					deleteWhere.insert({ std::pair(variable1[0],variable1[2]),5 });
 				}
 			}
+
+			std::cout << "deleteWhere.size() = " << deleteWhere.size() << std::endl;
 			engineer->setWhere(deleteWhere);
 
 			std::cout << "deleteWhere.size() = " << deleteWhere.size() << std::endl;
@@ -483,13 +485,13 @@ inline void Analyse::selectData()
 			std::set<std::string>s1;
 			for (const auto& cur : engineer->getColumn(name))
 			{
-				std::cout << "name = " << stringSplitPlus(*engineer, cur)[0] << std::endl;
 				s1.insert(stringSplitPlus(*engineer, cur)[0]);
 			}
 			std::vector<std::string>v1;
 			for (const auto& cur : s1)
 			{
 				v1.push_back(cur);
+				std::cout << "cur = " << cur << std::endl;
 			}
 			selectVariable = v1;
 		}
@@ -500,10 +502,6 @@ inline void Analyse::selectData()
 				std::cout << "SQL Error ! " << "Not Found " << cur << std::endl;
 				return;
 			}
-		}
-		for (const auto& cur : selectVariable)
-		{
-			std::cout << "curName = " << cur << std::endl;
 		}
 		int pos5 = code.find("where");
 		bool flag = false;
@@ -520,6 +518,8 @@ inline void Analyse::selectData()
 		}
 		if (flag && getWhereMap(std::string(code.begin() + pos3 + 1,code.begin() + pos4)))
 		{
+			std::cout << "setWhere!" << std::endl;
+			std::cout << "whereMap.size()" << whereMap.size() << std::endl;
 			engineer->setWhere(whereMap);
 		}
 		else
@@ -531,10 +531,6 @@ inline void Analyse::selectData()
 			}
 		}
 		selectVariableData = engineer->selectData(name, selectVariable);
-		for (const auto& cur : selectVariableData)
-		{
-			std::cout << "curData = " << cur << std::endl;
-		}
 		std::map<std::string, std::vector<std::string>> m;
 		for (const auto& cur : selectVariableData)
 		{

@@ -494,7 +494,7 @@ inline std::vector<std::string> create::selectData(std::string name, std::vector
 	}
 
 	std::vector<std::string> need = getWhereData(v);
-	std::vector<std::string>needData;
+	std::set<std::string>needData;
 	for (const auto& cur : need)
 	{
 		std::vector<std::string> words1 = stringSplit(cur);
@@ -505,7 +505,7 @@ inline std::vector<std::string> create::selectData(std::string name, std::vector
 			{
 				if (variableName.size() == 1 && stringSplit(variableName[0])[0] == "*")
 				{
-					needData.push_back(data);
+					needData.insert(data);
 				}
 				else
 				{
@@ -513,14 +513,20 @@ inline std::vector<std::string> create::selectData(std::string name, std::vector
 					{
 						if (stringSplit(words2[0])[0] == stringSplit(variablename)[0])
 						{
-							needData.push_back(data);
+							needData.insert(data);
 						}
 					}
 				}
 			}
 		}
 	}
-	return needData;
+	std::vector<std::string> vectorNeedData;
+	for (const auto& cur : needData)
+	{
+		vectorNeedData.push_back(cur);
+	}
+
+	return vectorNeedData;
 }
 
 inline std::vector<std::string> create::getWhereData(std::vector<std::string>& v)
@@ -586,7 +592,6 @@ inline std::vector<std::string> create::getWhereData(std::vector<std::string>& v
 		if (count == destion)
 			deleteList.push_back(data);
 	}
-
 	if (deleteList.empty())
 		return v;
 
