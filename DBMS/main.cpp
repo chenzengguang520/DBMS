@@ -1,6 +1,7 @@
 ﻿#include<iostream>
 #include "grammarAnalyse.h"
 #include "Timer.h"
+#include "User.h"
 using namespace std;
 
 void test()
@@ -47,6 +48,20 @@ void analyseTest()
 {
 	Analyse* analyser = new Analyse();
 	Timer* timer = new Timer();
+	User* user = new User();
+	string account, password;
+	cout << "please input account :";
+	getline(std::cin, account);
+	cout << "please input password :";
+	getline(std::cin, password);
+	while(!user->verification(account, password))
+	{
+		cout << "account ot password Error !" << endl;
+		cout << "please input account :";
+		getline(std::cin, account);
+		cout << "please input password :";
+		getline(std::cin, password);
+	}
 	while (1)
 	{
 		cout << "cyw DBMS SQL>> ";
