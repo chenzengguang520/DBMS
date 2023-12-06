@@ -1,5 +1,6 @@
 ﻿#include<iostream>
 #include "grammarAnalyse.h"
+#include "Timer.h"
 using namespace std;
 
 void test()
@@ -45,6 +46,7 @@ void test()
 void analyseTest()
 {
 	Analyse* analyser = new Analyse();
+	Timer* timer = new Timer();
 	while (1)
 	{
 		cout << "cyw DBMS SQL>> ";
@@ -58,8 +60,18 @@ void analyseTest()
 			continue;
 		}
 		analyser->grammarAnalyse(code);
+		timer->logRecord(code);
+		
 	}
 	analyser->~Analyse();
+	timer->~Timer();
+}
+
+void timeTest()
+{
+	Timer* timer = new Timer();
+	std::string date = "2023-12-06";
+	timer->logRecovery(date);
 }
 
 int main()

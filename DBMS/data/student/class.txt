@@ -1,0 +1,8 @@
+id 1 1
+num 5 1
+id 2 2
+num 5 2
+id 3 3
+num 5 3
+id 4 4
+num 7 4

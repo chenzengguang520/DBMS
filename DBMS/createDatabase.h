@@ -206,12 +206,10 @@ inline void create::writeFile(std::string filePath, std::list<std::string>& l)
 {
 	std::ofstream outputFile(filePath);
 
-	std::cout << "l.size() = " << l.size() << " " << "&l = " << &l << std::endl;
 	// 检查文件是否成功打开
 	if (outputFile.is_open()) {
 		for (const auto& cur : l)
 		{
-			std::cout << "deleteCur = " << cur << std::endl;
 			outputFile << cur << "\n";
 		}
 
@@ -384,7 +382,7 @@ inline void create::printVector(std::vector<std::string>& v)
 std::vector<std::string> create::getDatabase()
 {
 	// 指定目录的路径
-	std::string directoryPath = "./dbms";
+	std::string directoryPath = "./dbms/";
 	std::vector<std::string> v;
 	try 
 	{
@@ -770,13 +768,8 @@ inline void create::deleteData(std::string name)
 
 	checkAndDelete(v);
 
-	std::cout << "v.size() = " << v.size() << " &v = " << &v << std::endl;
-	for (const auto& cur : v)
-	{
-		std::cout << "cur = " << cur << std::endl;
-	}
+
 	writeFile(path1, v);
-	std::cout << "v.size() = " << v.size() << " " << getColumn(name).size() << "  / " << (int)(v.size() / getColumn(name).size()) << std::endl;
 	variableCount[dataBasePath + name + ".txt"] = std::to_string((int)(v.size() / getColumn(name).size()));
 }
 

@@ -1,9 +1,14 @@
 ﻿#pragma once
 #include "createDatabase.h"
 #include "Table.h"
+#include <chrono>
+#include <ctime>
+#include <fstream>
+#include <iostream>
 class Analyse
 {
 private:
+	std::vector<std::string>codes;
 	Tabler* tabler = nullptr;
 	Table* table = nullptr;
 	create* engineer = nullptr;
@@ -23,7 +28,10 @@ private:
 	std::vector<std::string>databases;
 	std::set<std::string>columnName;
 	std::set<std::string>tableName;
+	std::string date;
 private:
+	void writeFile(std::string code);
+	std::vector<std::string>readFile(std::string filePath);
 	std::vector<std::string> stringSplit(std::string str);
 	std::vector<std::string> stringSplit(std::string str,std::string );
 	bool getWhereMap(std::string);
@@ -31,6 +39,7 @@ private:
 public:
 	Analyse();
 	~Analyse();
+	friend std::vector<std::string> stringSplitBlank(Analyse* e,std::string);
 	void grammarAnalyse(std::string);
 	void createTableData();
 	void insertData();
@@ -38,6 +47,11 @@ public:
 	void updateData();
 	void selectData();
 	void showTable();	
+	void recoveryData();
+
+	std::string getTime();
+	void logRecord(std::string code);
+	void logRecovery(std::string date);
 };
 
 Analyse::Analyse()
@@ -52,6 +66,13 @@ inline Analyse::~Analyse()
 {
 	engineer->~create();
 }
+
+inline std::vector<std::string>stringSplitBlank(Analyse* e,std::string str)
+{
+
+	return stringSplitPlus(*(e->engineer),str);
+}
+
 
 inline void Analyse::grammarAnalyse(std::string _code)
 {
@@ -88,6 +109,11 @@ inline void Analyse::grammarAnalyse(std::string _code)
 			std::cout << " SQL error code: " << _code << std::endl;
 		}
 		engineer->setDataBasePath(words[1]);
+		for (const auto& cur : engineer->getTable())
+		{
+			int pos = cur.find(".txt");
+			tableName.insert(std::string(cur.begin(), cur.begin() + pos));
+		}
 	}
 	if (words[0] == "insert")
 	{
@@ -114,6 +140,11 @@ inline void Analyse::grammarAnalyse(std::string _code)
 	{
 		flage = true;
 		showTable();
+	}
+	if (words[0] == "recovery")
+	{
+		flage = true;
+		recoveryData();
 	}
 	if (!flage)
 	{
@@ -201,11 +232,6 @@ inline void Analyse::insertData()
 			return;
 		}
 		insertMap.insert({ columns[i],values[i] });
-	}
-	std::cout << "name = " << name << std::endl;
-	for (const auto& cur : insertMap)
-	{
-		std::cout << "cur.first = " << cur.first << " " << "cur.second = " << cur.second << std::endl;
 	}
 	engineer->insert(name, insertMap);
 
@@ -373,7 +399,6 @@ void Analyse::deleteData()
 			for (const auto& cur : variables)
 			{
 				std::vector<std::string>variable1 = stringSplitPlus(*engineer,cur);
-				std::cout << "variable1[1] = " << variable1[1] << std::endl;
 				if (variable1[1] == "=")
 				{
 					deleteWhere.insert({ std::pair(variable1[0],variable1[2]),0 });
@@ -399,11 +424,7 @@ void Analyse::deleteData()
 					deleteWhere.insert({ std::pair(variable1[0],variable1[2]),5 });
 				}
 			}
-
-			std::cout << "deleteWhere.size() = " << deleteWhere.size() << std::endl;
 			engineer->setWhere(deleteWhere);
-
-			std::cout << "deleteWhere.size() = " << deleteWhere.size() << std::endl;
 			engineer->deleteData(name);
 		}
 		else
@@ -498,7 +519,6 @@ inline void Analyse::selectData()
 			for (const auto& cur : s1)
 			{
 				v1.push_back(cur);
-				std::cout << "cur = " << cur << std::endl;
 			}
 			selectVariable = v1;
 		}
@@ -525,8 +545,6 @@ inline void Analyse::selectData()
 		}
 		if (flag && getWhereMap(std::string(code.begin() + pos3 + 1,code.begin() + pos4)))
 		{
-			std::cout << "setWhere!" << std::endl;
-			std::cout << "whereMap.size()" << whereMap.size() << std::endl;
 			engineer->setWhere(whereMap);
 		}
 		else
@@ -588,12 +606,6 @@ inline void Analyse::selectData()
 
 inline void Analyse::showTable()
 {
-
-	for (const auto& cur : engineer->getTable())
-	{
-		int pos = cur.find(".txt");
-		tableName.insert(std::string(cur.begin(),cur.begin() + pos));
-	}
 	try
 	{
 		if (words.at(1) == "table")
@@ -626,6 +638,117 @@ inline void Analyse::showTable()
 		{
 			std::cout << "SQL Error ! " << "can't recognition " << words.at(1) << "Error code : " << code << std::endl;
 		}
+	}
+	catch (const std::out_of_range& e)
+	{
+		std::cerr << "Caught an out_of_range exception: " << e.what() << std::endl;
+		return;
+	}
+}
+
+
+
+inline void Analyse::writeFile(std::string code)
+{
+	// 文件路径
+	std::string filePath = "./log/log.txt";
+
+	// 打开文件流，并设置为以追加模式打开
+	std::ofstream fileStream(filePath, std::ios::app);
+
+	if (!fileStream.is_open())
+	{
+		std::cerr << "无法打开文件：" << filePath << std::endl;
+		return;
+	}
+	// 要追加的数据
+	int pos = code.find("recovery");
+	std::cout << "pos = " << pos << std::endl;
+	if (!(pos >= 0 && pos < code.size()))
+	{
+		std::string dataToAppend = getTime() + " " + code + "\n";
+		// 向文件中写入数据
+		fileStream << dataToAppend;
+	}
+
+
+	// 关闭文件流
+	fileStream.close();
+}
+
+inline std::vector<std::string> Analyse::readFile(std::string filePath)
+{
+
+	std::ifstream fileStream(filePath);
+
+	if (!fileStream.is_open()) {
+		std::cerr << "无法打开文件：" << filePath << std::endl;
+	}
+
+	std::vector<std::string> fileLines;
+	std::string line;
+
+	while (std::getline(fileStream, line))
+	{
+		fileLines.push_back(line);
+	}
+	// 关闭文件流
+	fileStream.close();
+	return fileLines;
+}
+
+std::string Analyse::getTime()
+{
+	// 获取当前时间点
+	auto currentTimePoint = std::chrono::system_clock::now();
+
+	// 将时间点转换为时间结构体
+	std::time_t currentTime = std::chrono::system_clock::to_time_t(currentTimePoint);
+
+	// 使用 localtime_s 函数将时间结构体转换为本地时间
+	std::tm localTimeInfo;
+	localtime_s(&localTimeInfo, &currentTime);
+
+	// 输出格式化的时间
+	char dateBuffer[11];  // 长度为 11 包括 null 终止符
+	std::strftime(dateBuffer, sizeof(dateBuffer), "%Y-%m-%d", &localTimeInfo);
+	std::string currentDate(dateBuffer);
+	return currentDate;
+}
+
+inline void Analyse::logRecord(std::string code)
+{
+	writeFile(code);
+}
+
+inline void Analyse::logRecovery(std::string date)
+{
+	//data = 2023-12-06
+	std::string filePath = "./log/log.txt";
+	std::vector<std::string>logdata = readFile(filePath);
+
+	for (const auto& data : logdata)
+	{
+		std::string codeDate = stringSplitPlus(*engineer, data)[0];
+		if (codeDate == date)
+		{
+			std::string code(data.begin() + stringSplitPlus(*engineer, data)[0].size() + 1, data.end());
+			codes.push_back(code);
+		}
+		//std::cout << "code = " << code << std::endl;
+	}
+	for (const auto& code : codes)
+	{
+		grammarAnalyse(code);
+	}
+}
+
+void Analyse::recoveryData()
+{
+	try
+	{
+		date = words.at(1);
+		logRecovery(date);
 	}
 	catch (const std::out_of_range& e)
 	{
