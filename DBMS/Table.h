@@ -31,7 +31,6 @@ void Tabler::addTable(const Table& table)
 
 void Tabler::showTableData(const std::string& tableName)
 {
-	std::cout << "size = " << tables.size() << std::endl;
 	for (const auto& table : tables) {
 		if (table.name == tableName) {
 			// 打印表头
