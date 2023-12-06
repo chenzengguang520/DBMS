@@ -206,10 +206,12 @@ inline void create::writeFile(std::string filePath, std::list<std::string>& l)
 {
 	std::ofstream outputFile(filePath);
 
+	std::cout << "l.size() = " << l.size() << " " << "&l = " << &l << std::endl;
 	// 检查文件是否成功打开
 	if (outputFile.is_open()) {
 		for (const auto& cur : l)
 		{
+			std::cout << "deleteCur = " << cur << std::endl;
 			outputFile << cur << "\n";
 		}
 
@@ -413,6 +415,7 @@ inline create::~create()
 
 inline std::vector<std::string> create::getColumn(std::string name)
 {
+	columnName.clear();
 	std::string filePath = dataBasePath + name + ".txt";
 	// 创建文件流对象
 	std::ifstream inputFile(filePath);
@@ -767,11 +770,14 @@ inline void create::deleteData(std::string name)
 
 	checkAndDelete(v);
 
+	std::cout << "v.size() = " << v.size() << " &v = " << &v << std::endl;
+	for (const auto& cur : v)
+	{
+		std::cout << "cur = " << cur << std::endl;
+	}
 	writeFile(path1, v);
-
-	variableCount[dataBasePath + name + ".txt"] = std::to_string(v.size());
-	std::cout << v.size() << std::endl;
-
+	std::cout << "v.size() = " << v.size() << " " << getColumn(name).size() << "  / " << (int)(v.size() / getColumn(name).size()) << std::endl;
+	variableCount[dataBasePath + name + ".txt"] = std::to_string((int)(v.size() / getColumn(name).size()));
 }
 
 inline void create::showData(std::string name)

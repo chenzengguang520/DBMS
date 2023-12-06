@@ -228,8 +228,6 @@ void Analyse::createTableData()
 		std::cout << "SQL Error need ()!" << std::endl;
 		return;
 	}
-	//需要写一个新的stringSplit按，拆分。获取括号内的内容
-	//create table score (id int,score int)
 
 	std::string afterCode = std::string(code.begin() + pos1 + 1, code.begin() + pos2);
 
@@ -376,7 +374,7 @@ void Analyse::deleteData()
 			{
 				std::vector<std::string>variable1 = stringSplitPlus(*engineer,cur);
 				std::cout << "variable1[1] = " << variable1[1] << std::endl;
-				if (variable1[1] == "==")
+				if (variable1[1] == "=")
 				{
 					deleteWhere.insert({ std::pair(variable1[0],variable1[2]),0 });
 				}
@@ -430,19 +428,24 @@ inline void Analyse::updateData()
 				std::cout<< "SQL Error " << words.at(4) << "CODE Error! " << code << std::endl;
 				return;
 			}
+			int pos = code.find("where");
+			bool flag = false;
+			if(pos > 0 && pos < code.size())
+			{
+				flag = true;
+			}
 			updateMap[words.at(3)] = words.at(5);
 			int pos1 = code.find("{");
 			int pos2 = code.find("}");
-			for (const auto& cur : updateMap)
-			{
-				std::cout << "cur.first = " << cur.first << " " << "cur.seconde = " << cur.second << std::endl;
-			}
-			if (pos1 > 0 && pos1 < pos2 && pos2 < code.size())
+			if (flag && pos1 > 0 && pos1 < pos2 && pos2 < code.size())
 			{
 				if (getWhereMap(std::string(code.begin() + pos1 + 1,code.begin() + pos2)))
 				{
 					engineer->setWhere(whereMap);
 					engineer->updateData(name,updateMap);
+					whereMap.clear();
+					engineer->setWhere(whereMap);
+					return;
 				}
 				else
 				{
@@ -452,7 +455,11 @@ inline void Analyse::updateData()
 			}
 			else
 			{
-				std::cout << "SQL Error!" << "need {} " << "Error code : " << code << std::endl;
+				if (flag)
+				{
+					std::cout << "SQL Error!" << "need {} " << "Error code : " << code << std::endl;
+					return;
+				}
 			}
 			engineer->updateData(name, updateMap);
 		}
